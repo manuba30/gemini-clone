@@ -1,87 +1,86 @@
-import React, { useContext } from "react"; // Importing React and the useContext hook
-import { context } from "../../context/Context.jsx"; // Importing the context from Context.jsx
-import './Main.css'; // Importing the CSS stylesheet for this component
-import { assets } from "../../assets/assets"; // Importing image assets from the specified path
+import React, { useContext } from "react";
+import { AuthContext } from "../../context/Context"; // Corrigir a importação para 'AuthContext'
+import './Main.css';
+import { assets } from "../../assets/assets";
 
 const Main = () => {
-  // Destructuring values from the context
-  const { OnSent, recentPrompt, showResult, loading, resultData, setInput, input } = useContext(context);
+  const { OnSent, recentPrompt, showResult, loading, resultData, setInput, input } = useContext(AuthContext);
 
   return (
-    <div className="main"> {/* Main container */}
-      <div className="nav"> {/* Navigation bar */}
+    <div className="main">
+      <div className="nav">
         <p>Gemini</p>
-        <img src={assets.user_icon} alt="" /> {/* User icon */}
+        <img src={assets.user_icon} alt="" />
       </div>
-      <div className="main-container"> {/* Main content container */}
-        {!showResult ? ( // Conditional rendering: Show greeting and cards if 'showResult' is false
+      <div className="main-container">
+        {!showResult ? (
           <>
-            <div className="greet"> {/* Greeting section */}
+            <div className="greet">
               <p><span>hello, dev</span></p>
               <p>how can i help you today?</p>
             </div>
-            <div className="cards"> {/* Cards section */}
-              <div className="card"> {/* Card with text and image */}
+            <div className="cards">
+              <div className="card">
                 <p>suggest a trip to a foreigner country</p>
                 <img src={assets.compass_icon} alt="" />
               </div>
-              <div className="card"> {/* Card with text and image */}
+              <div className="card">
                 <p>Explain briefly about the sun</p>
                 <img src={assets.bulb_icon} alt="" />
               </div>
-              <div className="card"> {/* Card with text and image */}
+              <div className="card">
                 <p>Bonding moments with the team and how to do so</p>
                 <img src={assets.message_icon} alt="" />
               </div>
-              <div className="card"> {/* Card with text and image */}
+              <div className="card">
                 <p>Improve the code documentation</p>
                 <img src={assets.code_icon} alt="" />
               </div>
             </div>
           </>
-        ) : ( // If 'showResult' is true, show the result section
+        ) : (
           <div className="result">
-            <div className="result-title"> {/* Result title with user icon and prompt */}
+            <div className="result-title">
               <img src={assets.user_icon} alt="" />
               <p>{recentPrompt}</p>
             </div>
-            <div className="result-data"> {/* Result data with gemini icon and response */}
+            <div className="result-data">
               <img src={assets.gemini_icon} alt="" />
-              {loading ? ( // Conditional rendering: Show loader if loading, otherwise show result data
+              {loading ? (
                 <div className="loader">
                   <hr />
                   <hr />
                   <hr />
                 </div>
               ) : (
-                <p dangerouslySetInnerHTML={{ __html: resultData }}></p> // Render the result data
+                <p dangerouslySetInnerHTML={{ __html: resultData }}></p>
               )}
             </div>
           </div>
         )}
-        <div className="main-bottom"> {/* Bottom section with input box */}
+        <div className="main-bottom">
           <div className="search-box">
             <input
-              onChange={(e) => setInput(e.target.value)} // Set input value on change
-              value={input} // Bind input value to state
+              onChange={(e) => setInput(e.target.value)}
+              value={input}
               type="text"
               placeholder="Enter a prompt here"
             />
             <div>
-              <img src={assets.gallery_icon} alt="" /> {/* Gallery icon */}
-              <img src={assets.mic_icon} alt="" /> {/* Microphone icon */}
-              {input ? ( // Conditional rendering: Show send icon if there is input
-                <img onClick={() => OnSent()} src={assets.send_icon} alt="" /> // Send icon with click handler to send prompt
+              <img src={assets.gallery_icon} alt="" />
+              <img src={assets.mic_icon} alt="" />
+              {input ? (
+                <img onClick={() => OnSent()} src={assets.send_icon} alt="" />
               ) : null}
             </div>
           </div>
           <p className="bottom-info">
             O Gemini pode apresentar informações imprecisas, inclusive sobre pessoas. Por isso, cheque as respostas. Sua privacidade e os apps do Gemini
-          </p> {/* Information text */}
+          </p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Main; // Exporting the Main component
+export default Main;

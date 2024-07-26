@@ -1,94 +1,70 @@
-import React, { createContext, useState } from "react"; // Importing React, createContext, and useState
-import run from "../config/gemini"; // Importing the run function from the specified path
+import React, { createContext, useState } from 'react';
 
-export const context = createContext(); // Creating a new context
+export const AuthContext = createContext();
 
-const ContextProvider = (props) => {
-  // State variables and their setters
-  const [input, setInput] = useState("");
-  const [recentPrompt, setRecentPrompt] = useState("");
-  const [prevPrompt, setPrevPrompt] = useState([]); // Corrected to prevPrompt
-  const [showResult, setShowResult] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [resultData, setResultData] = useState("");
+export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
 
-  // Function to display words one by one with a delay
-  const delayPara = (index, words) => {
-    if (index < words.length) {
-      setTimeout(() => {
-        setResultData((prevData) => prevData + words[index] + " ");
-        delayPara(index + 1, words);
-      }, 50);
-    }
-  };
-
-  // Function to start a new chat
-  const newChat = () => {
-    setLoading(false);
-    setShowResult(false);
-  };
-
-  // Function to handle the submission of a prompt
-  const OnSent = async (prompt) => {
-    setResultData(""); // Clear previous result data
-    setLoading(true); // Set loading state to true
-    setShowResult(true); // Set showResult to true to display the result section
-    let response; // Variable to store the response from the run function
-    if(prompt !== undefined){
-      response = await run(prompt); // Run the prompt if it's defined
-      setRecentPrompt(prompt); // Set recent prompt
-    }
-    else{
-      setPrevPrompt(prev => [...prev, input]); // Add input to previous prompts
-      setRecentPrompt(input); // Set recent prompt to input
-      response = await run(input); // Run the input prompt
-    }
-
+  const handleLogin = async (username, password) => {
     try {
-      // Splitting the response by '**' and formatting it with <b> tags
-      let responseArray = response.split("**");
-      let newResponse = "";
-    
-      for (let i = 0; i < responseArray.length; i++) {
-        if (i === 0 || i % 2 === 0) {
-          newResponse += responseArray[i];
-        } else {
-          newResponse += "<b>" + responseArray[i] + "</b>";
-        }
+      const response = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
       }
-      // Replacing '*' with </b> tags and splitting by spaces
-      let newResponse2 = newResponse.split("*").join("</b>");
-      let newResponseArray = newResponse2.split(" ");
-      delayPara(0, newResponseArray); // Display the response with delay
+
+      setIsAuthenticated(true);
+      console.log('Login successful:', data);
     } catch (error) {
-      setResultData("There was an error processing your request."); // Set error message if there is an error
-    } finally {
-      setLoading(false); // Set loading state to false
-      setInput(""); // Clear the input
+      console.error('Error logging in:', error);
     }
   };
 
-  // Defining the context value
-  const contextValue = {
-    prevPrompt,
-    setPrevPrompt,
-    OnSent,
-    setRecentPrompt,
-    recentPrompt,
-    showResult,
-    loading,
-    resultData,
-    input,
-    setInput,
-    newChat
+  const handleRegister = async (username, password, email) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password, email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      setIsAuthenticated(true);
+      console.log('Registration successful:', data);
+    } catch (error) {
+      console.error('Error registering:', error);
+    }
   };
 
-  // Providing the context to the children components
   return (
-    <context.Provider value={contextValue}>
-      {props.children}
-    </context.Provider>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        handleLogin,
+        handleRegister,
+        setIsRegistering,
+        isRegistering,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
   );
 };
 
-export default ContextProvider; // Exporting the ContextProvider component
+export default AuthProvider;
